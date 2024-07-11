@@ -1,0 +1,29 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tm-vs
+  namespace: ticket-monster
+spec:
+  gateways:
+    - tm-gw
+  hosts:
+    - tm-monolith-ticket-monster.apps.cluster-nk55g.dynamic.redhatworkshops.io
+  http:
+# Pass 3: Route traffic to different versions of the Strangled application based on browser
+    - match:
+        - uri:
+            prefix: /rest/forge/venues 
+      delegate:
+        name: venue-mgmt-svc-vs # If the path above matches, the call will be delegate to this
+    - match:
+        - headers:
+            user-agent:
+              regex: .*Firefox.*
+      route:
+        - destination:
+            host: tm-ui
+            subset: v2 # This will route to the backend version without the UI
+    - route:
+        - destination:
+            host: tm-ui
+            subset: v1 # This will route to the montolith that has still has the UI parts in it

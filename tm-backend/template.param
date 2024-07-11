@@ -1,0 +1,4 @@
+APPLICATION_NAME=tm-backend
+SOURCE_REPOSITORY_URL=https://github.com/shgovind-rh/ticket-monster.git
+SOURCE_REPOSITORY_REF=main 
+CONTEXT_DIR=tm-backend  

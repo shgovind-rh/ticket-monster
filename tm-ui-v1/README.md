@@ -8,20 +8,3 @@ It also helps us avoid tripping the browser Same Origin policy. We use a simple 
 ProxyPass "/rest" "http://ticket-monster:8080/rest"
 ProxyPassReverse "/rest" "http://ticket-monster:8080/rest"
 ```
-
-## Running in docker
-
-The docker image for this project is `ceposta/tm-ui:monolith`
-
-
-## Developers:
-
-Build the docker container:
-
-> docker build -t ceposta/tm-ui:monolith .
-
-Run in kubernetes
-
-> kubectl run tm-ui --image=ceposta/tm-ui:monolith --port=80
-
-Or using the resource files in the [deployment](../deployment/kubernetes/core/frontend/) folder.

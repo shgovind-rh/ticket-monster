@@ -10,19 +10,3 @@ ProxyPassReverse "/rest" "http://backend:8080/rest"
 ```
 
 
-## Running in docker
-
-The docker image for this project is `ceposta/tm-ui:backend`
-
-## Developers:
-
-Build the docker container:
-
-> docker build -t ceposta/tm-ui:backend .
-
-Run in kubernetes
-
-> kubectl run tm-ui --image=ceposta/tm-ui:backend --port=80
-
-Or using the resource files in the [deployment](../deployment/kubernetes/core/frontend/) folder.
-

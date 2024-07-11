@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker push ceposta/tm-ui:backend
+podman push docker.io/shankar29/tm-ui:backend

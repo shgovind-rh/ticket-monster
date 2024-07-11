@@ -1,0 +1,67 @@
+###### Prep Before Demo
+
+## Step 1: Configure SMCP and SMMR
+    oc apply -f ./tm-smcp.yaml -n tm-smcp
+    oc apply -f ./tm-smmr.yaml -n tm-smcp
+
+## Step 2: Deploy the DB
+    oc apply -f ./deployment/kubernetes/mysql-svc.yaml -n ticket-monster
+    oc apply -f ./deployment/kubernetes/mysql-deployment.yaml -n ticket-monster
+
+## Step 3: Deploy the monolith
+    oc process -f ./tm-monolith/template.yaml --param-file=./tm-monolith/template.param  | oc apply -f - -n ticket-monster
+    oc start-build tm-monolith
+
+Show that the tm-monolith app is running, using the tm-monolith route
+
+###### Start - Demo
+
+Since we will have mulitple versions of the app that will be tested or use in parallel we will configure,
+a GW and VS for monolith, the GW will be configured with the monolith route and the existin monolith route,
+can be deleted.
+
+## Step 4: Annotate tm-monolith dc, configure GW and VS
+    ** Add the below annotation to DC Manually - 
+    annotations:
+      sidecar.istio.io/inject: 'true' 
+
+    oc delete route tm-monolith -n ticket-monster
+    oc apply -f ./tm-gw.yaml -n ticket-monster
+    oc apply -f ./tm-vs-iter-1.yaml -n ticket-monster
+
+## Step 5: Carve out the UI Part (but not removed from monolith) and deploy the app --> tm-ui-v1
+    oc apply -f ./deployment/kubernetes/tm-ui-svc.yaml -n ticket-monster
+    oc apply -f ./deployment/kubernetes/tm-ui-v1-deployment.yaml -n ticket-monster
+    oc expose svc tm-ui -n ticket-monster    
+    
+    ** Test the UI and its interaction with the monolith and once satisfied we can annotate for istio
+    annotations:
+      sidecar.istio.io/inject: 'true' 
+    
+    ** Edit the VS to split the traffic either gradully or fully. After this step it will have a weight of 100
+    oc apply -f ./tm-vs-iter-2.yaml -n ticket-monster
+
+## Step 6: Modify the monolith to remove the UI and deploy it --> tm-backend
+    oc process -f ./tm-backend/template.yaml --param-file=./tm-backend/template.param  | oc apply -f - -n ticket-monster
+    oc start-build tm-backend
+
+## Step 7: Deploy another verion of UI, that interacts with the backend (This is monolith that has the UI part removed)  --> tm-ui-v2
+     oc apply -f ./deployment/kubernetes/tm-ui-v2-deployment.yaml -n ticket-monster
+
+## Step 8: Show case the traffic shifting feature based on the header value
+    ** Create a Destination Rule to define the subsets
+    oc apply -f ./tm-ui-dr.yaml -n ticket-monster
+
+    ** Edit the VS to apply header based routing and may be remove the entry for old monolith
+    oc apply -f ./tm-vs-iter-3.yaml -n ticket-monster     
+ 
+ ## Step 9: Strangle the monolith more by creating a venue-management-service that will be responsible for anything related to venues
+    oc process -f ./venue-mgmt-svc/template.yaml --param-file=./venue-mgmt-svc/template.param  | oc apply -f - -n ticket-monster
+    oc start-build venue-mgmt-svc
+
+    ** Create a virtual service for the new venue-mgmt-svc
+    oc apply -f ./venue-mgmt-svc-vs.yaml -n ticket-monster
+
+    ** Edit the VS for routing traffic to venue-mgmt-service based on path
+    oc apply -f ./tm-vs-iter-4.yaml -n ticket-monster
+

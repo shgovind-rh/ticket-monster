@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tm-vs
+  namespace: ticket-monster
+spec:
+  gateways:
+    - tm-gw
+  hosts:
+    - tm-monolith-ticket-monster.apps.cluster-nk55g.dynamic.redhatworkshops.io
+  http:
+# Pass 2: Route traffic 100% to UI
+    - route:
+      - destination:
+          host: ticket-monster
+        weight: 0
+      - destination:
+          host: tm-ui
+        weight: 100                      

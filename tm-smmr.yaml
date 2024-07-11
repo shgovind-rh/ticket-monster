@@ -1,0 +1,11 @@
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  finalizers:
+    - maistra.io/istio-operator
+  generation: 1
+  name: default
+  namespace: tm-smcp
+spec:
+  members:
+    - ticket-monster

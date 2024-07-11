@@ -51,6 +51,12 @@ function run() {
 
 function relative() {
     for arg; do
+	echo $arg
+    	echo "-----"
+	echo $0
+	echo "-----"
+	echo "$(realpath $(dirname $(which $0)))"
+	echo "-----"	
         echo "$(realpath $(dirname $(which $0)))/$arg" | sed "s|$(realpath $(pwd))|.|"
     done
 }

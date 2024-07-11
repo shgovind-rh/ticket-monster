@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker build -t ceposta/tm-ui:monolith .
+podman build -t docker.io/shankar29/tm-ui:monolith .

@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: tm-gw
+  namespace: ticket-monster
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - tm-monolith-ticket-monster.apps.cluster-nk55g.dynamic.redhatworkshops.io
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
